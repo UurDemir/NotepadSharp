@@ -61,7 +61,7 @@ namespace TextEditor.Engine.NFA
                 {
                     foreach (var destination in state.Value.Destinations)
                     {
-                        if (destination.Value == character)
+                        if (destination.Value == character || destination.Value == '.')
                         {
                             if (state.Key == _initialState.Id)
                                 begining = index;

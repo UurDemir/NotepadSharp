@@ -33,8 +33,18 @@ namespace TextEditor
             if (_searching)
                 return;
 
+            txtContent.SuspendLayout();
+
+            var cursorIndex = txtContent.SelectionStart;
+
+            txtContent.SelectionStart = 0;
+            txtContent.SelectionLength = txtContent.Text.Length;
+            txtContent.SelectionBackColor = Color.White;
+            txtContent.SelectionLength = 0;
+
+
             var regexEngine = new RegexEngine();
-            if (regexEngine.SetRegex("(Two)"))
+            if (regexEngine.SetRegex("(Two)(Two)"))
             {
                 var matches = regexEngine.Matches(txtContent.Text);
 
@@ -42,12 +52,15 @@ namespace TextEditor
                 foreach (var regexMatch in matches)
                 {
                     txtContent.Select(regexMatch.StartIndex, regexMatch.EndIndex - regexMatch.StartIndex + 1);
-                    txtContent.SelectionBullet = true;
+                    txtContent.SelectionBackColor = Color.Yellow;
                     txtContent.SelectionLength = 0;
                 }
                 _searching = false;
             }
 
+            txtContent.SelectionStart = cursorIndex;
+
+            txtContent.ResumeLayout();
 
         }
     }
