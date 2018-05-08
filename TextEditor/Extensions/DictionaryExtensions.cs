@@ -8,20 +8,19 @@ namespace TextEditor.Extensions
 {
     public static class DictionaryExtensions
     {
-        public static void AddOrReplace<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        public static void AddOrReplace<TKey, TValue>(this List<KeyValuePair<TKey, TValue>> dictionary, TKey key, TValue value)
         {
-            if (dictionary.ContainsKey(key))
-                dictionary[key] = value;
+            var existsItem = dictionary.FirstOrDefault(item => item.Key.Equals(key));
+            if (existsItem.Key != null &&existsItem.Value != null)
+            {
+                var index = dictionary.IndexOf(existsItem);
+                dictionary[index] = new KeyValuePair<TKey, TValue>(existsItem.Key, value);
+            }
             else
-                dictionary.Add(key, value);
-
-            //if (dictionary.ContainsKey(key))
-            //    dictionary.Remove(key);
-
-            //dictionary.Add(key, value);
+                dictionary.Add(new KeyValuePair<TKey, TValue>(key, value));
         }
 
-        public static bool Compare<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> dictionary2)
+        public static bool Compare<TKey, TValue>(this List<KeyValuePair<TKey, TValue>> dictionary, List<KeyValuePair<TKey, TValue>> dictionary2)
         {
             if (dictionary.Count != dictionary2.Count) return false;
 
@@ -29,9 +28,10 @@ namespace TextEditor.Extensions
 
             foreach (var pair in dictionary)
             {
-                if (dictionary2.TryGetValue(pair.Key, out var value))
+                var value = dictionary2.FirstOrDefault(item => item.Key.Equals(pair.Key));
+                if (value.Value != null )
                 {
-                    if (value.Equals(pair.Value)) continue;
+                    if (value.Value.Equals(pair.Value)) continue;
                     equal = false;
                     break;
                 }

@@ -10,22 +10,31 @@ namespace TextEditor.Engine.NFA
     public class State
     {
         public static char Epsilon = '$';
-        public static int Counter = 0;
         public int Id { get; set; }
 
         public bool IsAccepting { get; set; }
-        public Dictionary<State, char> Destinations { get; set; } = new Dictionary<State, char>();
+        public List<KeyValuePair<State, char>> Destinations { get; set; } = new List<KeyValuePair<State, char>>();
 
-        public State(Dictionary<int, State> states)
+        public State()
+        {
+
+        }
+
+        public State(List<KeyValuePair<int, State>> states)
         {
             IsAccepting = false;
-            Id = Counter++;
-            states.Add(Id, this);
+            Id = SearchOptions.Counter++;
+            states.Add(new KeyValuePair<int, State>(Id, this));
         }
 
         public void AddDestination(State destination, char symbol)
         {
-                Destinations.AddOrReplace(destination, symbol);
+            Destinations.AddOrReplace(destination, symbol);
+        }
+
+        public State Clone()
+        {
+            return new State { Id = Id, IsAccepting = IsAccepting, Destinations = Destinations };
         }
     }
 }

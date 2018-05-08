@@ -10,14 +10,14 @@ namespace TextEditor.Engine.NFA
     public class Nfa
     {
         private State _initialState;
-        public Dictionary<int, State> States { get; set; } = new Dictionary<int, State>();
+        public List<KeyValuePair<int, State>> States { get; set; } = new List<KeyValuePair<int, State>>();
 
         public RegexMatch Accepts(string content, int startIndex = 0)
         {
             var begining = -1;
             var index = startIndex;
-            var p = new Dictionary<int, State>();
-            Dictionary<int, State> t;
+            var p = new List<KeyValuePair<int, State>>();
+            List<KeyValuePair<int, State>> t;
 
             while (true)
             {
@@ -25,37 +25,31 @@ namespace TextEditor.Engine.NFA
 
                 do
                 {
-                    t = new Dictionary<int, State>(p);
-                    var pCount = 0;
+                    t = p.ToList();
 
-                    do
+                    for (int i = 0; i < p.Count; i++)
                     {
-                        var loopIndex = 0;
-                        foreach (var state in p.ToList())
-                        {
-                            if (pCount > loopIndex++)
-                                continue;
+                        var state = p[i];
 
-                            var emptyList = new Dictionary<int, State>();
 
-                            var epsilons = EpsilonClosures(state.Value, ref emptyList);
+                        var emptyList = new List<KeyValuePair<int, State>>();
 
-                            foreach (var epsilon in epsilons)
-                                p.AddOrReplace(epsilon.Key, epsilon.Value);
+                        var epsilons = EpsilonClosures(state.Value, ref emptyList);
 
-                            pCount++;
-
-                        }
-                    } while (pCount != p.Count );
+                        foreach (var epsilon in epsilons)
+                            p.AddOrReplace(epsilon.Key, epsilon.Value);
+                    }
 
                 } while (!t.Compare(p));
 
-                if (HasAcceptingStates(t) || content.Length == index + 1)
+                if (HasAcceptingStates(t) || content.Length <= index)
                     break;
 
                 var character = content[index];
 
                 t.Clear();
+
+                var matched = false;
 
                 foreach (var state in p)
                 {
@@ -63,10 +57,11 @@ namespace TextEditor.Engine.NFA
                     {
                         if (destination.Value == character || destination.Value == '.')
                         {
-                            if (state.Key == _initialState.Id)
+                            if (begining == -1 && state.Key == _initialState.Id)
                                 begining = index;
 
                             t.AddOrReplace(destination.Key.Id, destination.Key);
+                            matched = true;
                         }
                     }
                 }
@@ -74,14 +69,17 @@ namespace TextEditor.Engine.NFA
                 if (HasAcceptingStates(t))
                     break;
 
-                p = new Dictionary<int, State>(t);
+                if (!matched)
+                    begining = -1;
+
+                p = new List<KeyValuePair<int, State>>(t);
                 index++;
             }
 
-            return HasAcceptingStates(t) ? new RegexMatch(begining, index, content.Substring(begining, index - begining + 1)) : null;
+            return HasAcceptingStates(t) && begining > -1 ? new RegexMatch(begining, index, content.Substring(begining, index - begining + 1)) : null;
         }
 
-        public static Dictionary<int, State> EpsilonClosures(State state,ref  Dictionary<int, State> neighborhoods)
+        public static List<KeyValuePair<int, State>> EpsilonClosures(State state, ref List<KeyValuePair<int, State>> neighborhoods)
         {
             neighborhoods.AddOrReplace(state.Id, state);
 
@@ -89,7 +87,7 @@ namespace TextEditor.Engine.NFA
             {
                 if (destination.Value == State.Epsilon && destination.Key.Id != state.Id)
                 {
-                    EpsilonClosures(destination.Key,ref  neighborhoods);
+                    EpsilonClosures(destination.Key, ref neighborhoods);
                 }
             }
 
@@ -116,7 +114,7 @@ namespace TextEditor.Engine.NFA
         {
             var nfa = new Nfa();
 
-            nfa.States = new Dictionary<int, State>(nfa1.States);
+            nfa.States = new List<KeyValuePair<int, State>>(nfa1.States);
 
             foreach (var state in nfa2.States)
                 nfa.States.AddOrReplace(state.Key, state.Value);
@@ -134,7 +132,7 @@ namespace TextEditor.Engine.NFA
         {
             var nfa = new Nfa();
 
-            nfa.States = new Dictionary<int, State>(nfa1.States);
+            nfa.States = new List<KeyValuePair<int, State>>(nfa1.States);
 
             foreach (var state in nfa2.States)
                 nfa.States.AddOrReplace(state.Key, state.Value);
@@ -155,16 +153,16 @@ namespace TextEditor.Engine.NFA
 
         public static Nfa Star(Nfa nfa)
         {
+
             var newNfa = new Nfa();
+            newNfa.States = new List<KeyValuePair<int, State>>(nfa.States);
 
-            newNfa.States = nfa.States;
-
-            newNfa._initialState = nfa._initialState;
+            newNfa._initialState = nfa._initialState.Clone();
 
             foreach (var state in newNfa.States)
             {
                 if (state.Value.IsAccepting)
-                    state.Value.AddDestination(newNfa._initialState, State.Epsilon);
+                    state.Value.AddDestination(newNfa._initialState.Clone(), State.Epsilon);
             }
 
             newNfa._initialState.IsAccepting = true;
@@ -186,7 +184,7 @@ namespace TextEditor.Engine.NFA
                     case '&':
                         Nfa nfa1 = nfas.Pop();
                         Nfa nfa2 = nfas.Pop();
-                        
+
                         nfas.Push(Link(nfa2, nfa1));
 
                         break;
@@ -213,7 +211,7 @@ namespace TextEditor.Engine.NFA
             return nfas.Peek();
         }
 
-        private static bool HasAcceptingStates(Dictionary<int, State> states)
+        private static bool HasAcceptingStates(List<KeyValuePair<int, State>> states)
         {
             return states.Any(state => state.Value.IsAccepting);
         }
