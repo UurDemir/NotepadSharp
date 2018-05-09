@@ -95,8 +95,8 @@
             this.Name = "frmSearch";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Search With Regex";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmSearch_FormClosed);
             this.Load += new System.EventHandler(this.frmSearch_Load);
-            this.Leave += new System.EventHandler(this.frmSearch_Leave);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);

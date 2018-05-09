@@ -19,6 +19,8 @@ namespace TextEditor.Engine.NFA
             var p = new List<KeyValuePair<int, State>>();
             List<KeyValuePair<int, State>> t;
 
+            var beforeAccepting = false;
+
             while (true)
             {
                 p.AddOrReplace(_initialState.Id, _initialState);
@@ -34,7 +36,7 @@ namespace TextEditor.Engine.NFA
 
                         var emptyList = new List<KeyValuePair<int, State>>();
 
-                        var epsilons = EpsilonClosures(state.Value, ref emptyList);
+                        var epsilons = EpsilonClosures(state.Value, emptyList);
 
                         foreach (var epsilon in epsilons)
                             p.AddOrReplace(epsilon.Key, epsilon.Value);
@@ -42,8 +44,11 @@ namespace TextEditor.Engine.NFA
 
                 } while (!t.Compare(p));
 
-                if (HasAcceptingStates(t) || content.Length <= index)
+                if ((HasAcceptingStates(t) && !HasDestination(t)) || content.Length <= index)
+                {
+                    index--;
                     break;
+                }
 
                 var character = content[index];
 
@@ -53,6 +58,7 @@ namespace TextEditor.Engine.NFA
 
                 foreach (var state in p)
                 {
+                    var stateMatched = false;
                     foreach (var destination in state.Value.Destinations)
                     {
                         if (destination.Value == character || destination.Value == '.')
@@ -66,8 +72,23 @@ namespace TextEditor.Engine.NFA
                     }
                 }
 
-                if (HasAcceptingStates(t))
-                    break;
+                var currentAccepting = HasAcceptingStates(t);
+
+                if (currentAccepting || beforeAccepting)
+                {
+                    if (!HasDestination(t))
+                    {
+                        break;
+                    }
+
+                    if(!matched)
+                    {
+                        index--;
+                        break;
+                    }
+
+                    beforeAccepting = currentAccepting;
+                }
 
                 if (!matched)
                     begining = -1;
@@ -76,10 +97,10 @@ namespace TextEditor.Engine.NFA
                 index++;
             }
 
-            return HasAcceptingStates(t) && begining > -1 ? new RegexMatch(begining, index, content.Substring(begining, index - begining + 1)) : null;
+            return (HasAcceptingStates(t) || beforeAccepting) && begining > -1 ? new RegexMatch(begining, index, content.Substring(begining, index - begining)) : null;
         }
 
-        public static List<KeyValuePair<int, State>> EpsilonClosures(State state, ref List<KeyValuePair<int, State>> neighborhoods)
+        public static List<KeyValuePair<int, State>> EpsilonClosures(State state, List<KeyValuePair<int, State>> neighborhoods)
         {
             neighborhoods.AddOrReplace(state.Id, state);
 
@@ -87,7 +108,7 @@ namespace TextEditor.Engine.NFA
             {
                 if (destination.Value == State.Epsilon && destination.Key.Id != state.Id)
                 {
-                    EpsilonClosures(destination.Key, ref neighborhoods);
+                    neighborhoods= EpsilonClosures(destination.Key, neighborhoods);
                 }
             }
 
@@ -162,7 +183,9 @@ namespace TextEditor.Engine.NFA
             foreach (var state in newNfa.States)
             {
                 if (state.Value.IsAccepting)
+                {
                     state.Value.AddDestination(newNfa._initialState.Clone(), State.Epsilon);
+                }
             }
 
             newNfa._initialState.IsAccepting = true;
@@ -214,6 +237,11 @@ namespace TextEditor.Engine.NFA
         private static bool HasAcceptingStates(List<KeyValuePair<int, State>> states)
         {
             return states.Any(state => state.Value.IsAccepting);
+        }
+
+        private static bool HasDestination(List<KeyValuePair<int, State>> states)
+        {
+            return states.All(state => state.Value.Destinations.Any());
         }
     }
 }

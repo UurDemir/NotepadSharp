@@ -43,7 +43,7 @@ namespace TextEditor
 
             var cursorIndex = _txtContent.SelectionStart;
 
-            ClearHighlightes();
+            _txtContent.ClearHighlightes();
 
             var regexEngine = new RegexEngine();
 
@@ -70,20 +70,11 @@ namespace TextEditor
 
         }
 
-        private void ClearHighlightes()
-        {
 
-            var cursorIndex = _txtContent.SelectionStart;
-            _txtContent.SelectionStart = 0;
-            _txtContent.SelectionLength = _txtContent.Text.Length;
-            _txtContent.SelectionBackColor = Color.White;
-            _txtContent.SelectionLength = 0;
-            _txtContent.SelectionStart = cursorIndex;
-        }
 
-        private void frmSearch_Leave(object sender, EventArgs e)
+        private void frmSearch_FormClosed(object sender, FormClosedEventArgs e)
         {
-            ClearHighlightes();
+            _txtContent.ClearHighlightes();
         }
     }
 }

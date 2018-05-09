@@ -152,5 +152,9 @@ namespace TextEditor
                 txtContent.Text = File.ReadAllText(_openFileDialog.FileName);
         }
 
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
