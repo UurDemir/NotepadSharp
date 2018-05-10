@@ -10,24 +10,41 @@ namespace TextEditor.Engine
 {
     public class RegexConverter
     {
+        //Oluşturulan postfix değeri tutulur 
         private string _postfixRegex = string.Empty;
+
+        // Dönüştürülecek infix regexi tutulur
         private string _infixRegex = string.Empty;
+
+        // Infixten postfixe çevrilirken anlık karakter değeri
         private char _currentCharacter = Char.MinValue;
+
+        // Infixten postfixe çevrilirken anlık karakter indexi
         private int _index = 0;
 
+        // Oluşturulan postfix değerini döner
         public string PostfixRegex => _postfixRegex;
 
+        /// <summary>
+        /// Infix regex i postfixe çevirir
+        /// </summary>
+        /// <returns>Oluşturulan postfix değerini döner</returns>
         public string ConvertToPostfix()
         {
+            // Postfix değerini sıfırlar
             var postFix = string.Empty;
             NextCharacter();
             OrOperatorCheck(ref postFix);
             return postFix;
         }
 
-
+        /// <summary>
+        /// Yeni infix değerini atar ve değişkenleri sıfırlayıp postfix değerini çevirir
+        /// </summary>
+        /// <param name="infixRegex"></param>
         public void SetInfixRegex(string infixRegex)
         {
+            // Tekrar postfixe çevirmemek için eğer yei gelen infix önceki ile aynıysa işlemleri tekrar etmez.
             if (infixRegex == _infixRegex) return;
             _infixRegex = infixRegex + Char.MinValue;
             _index = 0;
