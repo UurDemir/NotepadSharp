@@ -17,6 +17,7 @@ namespace TextEditor
             richTextBox.SelectionStart = 0;
             richTextBox.SelectionLength = richTextBox.Text.Length;
             richTextBox.SelectionBackColor = Color.White;
+            richTextBox.SelectionColor = Color.Black;
             richTextBox.SelectionLength = 0;
             richTextBox.SelectionStart = cursorIndex;
         }

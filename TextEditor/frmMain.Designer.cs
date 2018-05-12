@@ -113,6 +113,7 @@
             this.highlightTextColourToolStripMenuItem.Name = "highlightTextColourToolStripMenuItem";
             this.highlightTextColourToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.highlightTextColourToolStripMenuItem.Text = "Highlight Text Colour";
+            this.highlightTextColourToolStripMenuItem.Click += new System.EventHandler(this.highlightTextColourToolStripMenuItem_Click);
             // 
             // frmMain
             // 

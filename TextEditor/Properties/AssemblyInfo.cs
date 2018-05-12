@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TextEditor")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("NotepadSharp")]
+[assembly: AssemblyDescription("This program is designed as a text editor which can make search by regular expressions.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TextEditor")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCompany("(++) + (++)")]
+[assembly: AssemblyProduct("NotepadSharp")]
+[assembly: AssemblyCopyright("Simge , Uğur , Sema")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -68,9 +68,21 @@ namespace TextEditor
             OpenSearchForm();
         }
 
+
+        private void highlightTextColourToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dialogResult = _highlightTextColorDialog.ShowDialog();
+
+            if (dialogResult == DialogResult.OK)
+                SearchOptions.TextColor = _highlightTextColorDialog.Color;
+        }
+
         private void highlightColourToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _highlightColorDialog.ShowDialog();
+           var dialogResult = _highlightColorDialog.ShowDialog();
+
+            if (dialogResult == DialogResult.OK)
+                SearchOptions.HighlightColor = _highlightColorDialog.Color;
         }
 
 
